@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konversi Suara ke Teks by billy</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1.5rem;
+        }
+        button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        #startBtn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #stopBtn {
+            background-color: #f44336;
+            color: white;
+        }
+        button[disabled] {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .icon {
+            margin-right: 0.5em;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Konversi Suara ke Teks</h1>
+        <div class="button-container">
+            <button id="startBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+                Mulai
+            </button>
+            <button id="stopBtn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                Berhenti
+            </button>
+        </div>
+        <textarea id="output" readonly placeholder="Hasil konversi suara akan muncul di sini..."></textarea>
+    </div>
+
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const output = document.getElementById('output');
+        let recognition;
+
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'id-ID';
+
+            recognition.onresult = function(event) {
+                let interimTranscript = '';
+                let finalTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+
+                output.value = finalTranscript + interimTranscript;
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Error occurred in recognition: ' + event.error);
+            }
+
+            startBtn.onclick = function() {
+                recognition.start();
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                startBtn.style.opacity = '0.6';
+                stopBtn.style.opacity = '1';
+            }
+
+            stopBtn.onclick = function() {
+                recognition.stop();
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                startBtn.style.opacity = '1';
+                stopBtn.style.opacity = '0.6';
+            }
+        } else {
+            output.value = 'Maaf, browser Anda tidak mendukung Web Speech API.';
+            startBtn.disabled = true;
+            stopBtn.disabled = true;
+        }
+    </script>
+</body>
+</html>
